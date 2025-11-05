@@ -25,6 +25,10 @@ public class EstudiantesServlet extends HttpServlet {
         String servletPath = req.getContextPath() + "/api/estudiantes/me";
 
         resp.setContentType("application/json;charset=UTF-8");
+        
+        // dentro de doGet, después de obtener 'servletPath' y 'resp.setContentType'
+        String servletMePath = req.getContextPath() + "/api/estudiantes/me";
+        String servletMeHorariosPath = req.getContextPath() + "/api/estudiantes/me/horarios";
 
         try {
             if (path.equals(servletPath)) {
@@ -47,7 +51,27 @@ public class EstudiantesServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 resp.getWriter().write(gson.toJson(e));
                 return;
-            } else {
+            }else if(path.equals(servletMeHorariosPath)){
+                // --- Obtener horarios del estudiante autenticado ---
+                HttpSession session = req.getSession(false);
+                if (session == null || session.getAttribute("usuario") == null) {
+                    resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    resp.getWriter().write(gson.toJson(new ErrorResp("No autenticado")));
+                    return;
+                }
+                String correo = (String) session.getAttribute("usuario");
+                Estudiante e = dao.obtenerPorCorreo(correo);
+                if (e == null) {
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    resp.getWriter().write(gson.toJson(new ErrorResp("Estudiante no encontrado")));
+                    return;
+                }
+
+                List<EstudianteDAO.Horario> horarios = dao.obtenerHorariosPorIdUsuario(e.idUsuario);
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write(gson.toJson(horarios));
+                return;
+            }else {
                 // --- Obtener lista completa de estudiantes ---
                 List<Estudiante> lista = dao.obtenerTodos();
                 resp.setStatus(HttpServletResponse.SC_OK);

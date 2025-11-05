@@ -338,7 +338,7 @@
                 <h3 id="userName">Estudiante</h3>
                 <p id="userCode">Código: ---</p>
             </div>
-            <button class="logout-btn">
+            <button class="logout-btn" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
@@ -402,7 +402,7 @@
         
         <div class="page-content">
             <div class="section-title">
-                <span>Horario Académico - Semestre 2023-2</span>
+                <span id="sectionSemestre">Horario Académico - Semestre 2023-2</span>
             </div>
             
             <div class="semester-selector">
@@ -424,6 +424,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- contenido reemplazado por renderSchedule() -->
                         <tr>
                             <td class="time-slot">07:00 - 08:30</td>
                             <td>
@@ -447,60 +448,6 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="time-slot">08:30 - 10:00</td>
-                            <td class="empty-slot">Libre</td>
-                            <td>
-                                <div class="course-block">
-                                    <div class="course-name">Física General</div>
-                                    <div class="course-details">A-103 • Dra. López</div>
-                                </div>
-                            </td>
-                            <td class="empty-slot">Libre</td>
-                            <td>
-                                <div class="course-block">
-                                    <div class="course-name">Inglés Técnico</div>
-                                    <div class="course-details">A-104 • Prof. Johnson</div>
-                                </div>
-                            </td>
-                            <td class="empty-slot">Libre</td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">10:00 - 11:30</td>
-                            <td>
-                                <div class="course-block lab">
-                                    <div class="course-name">Laboratorio Física</div>
-                                    <div class="course-details">Lab-301 • Dr. Torres</div>
-                                </div>
-                            </td>
-                            <td class="empty-slot">Libre</td>
-                            <td class="empty-slot">Libre</td>
-                            <td>
-                                <div class="course-block">
-                                    <div class="course-name">Programación I</div>
-                                    <div class="course-details">A-101 • Dr. Rodríguez</div>
-                                </div>
-                            </td>
-                            <td class="empty-slot">Libre</td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">11:30 - 13:00</td>
-                            <td class="empty-slot">Libre</td>
-                            <td>
-                                <div class="course-block">
-                                    <div class="course-name">Física General</div>
-                                    <div class="course-details">A-103 • Dra. López</div>
-                                </div>
-                            </td>
-                            <td class="empty-slot">Libre</td>
-                            <td class="empty-slot">Libre</td>
-                            <td>
-                                <div class="course-block lab">
-                                    <div class="course-name">Laboratorio Química</div>
-                                    <div class="course-details">Lab-401 • Dra. Patricia</div>
-                                </div>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -508,35 +455,241 @@
     </div>
 
     <script>
-        // Cargar información del estudiante
-        document.addEventListener('DOMContentLoaded', function() {
-            const estudiante = JSON.parse(localStorage.getItem('estudianteActual')) || {
-                nombre: 'Ángela Soto Huerta',
-                codigo: '20212163',
-                iniciales: 'AS'
-            };
+        document.addEventListener('DOMContentLoaded', async function() {
+        // Detectar contextPath de forma dinámica: toma el primer segmento "no vacío" de la ruta.
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const contextPath = pathParts.length > 0 ? '/' + pathParts[0] : ''; // ej. "/home" o "" si está en root
+        const urlEstudiante = `${contextPath}/api/estudiantes/me`;
 
-            document.getElementById('userName').textContent = estudiante.nombre;
-            document.getElementById('userCode').textContent = `Código: ${estudiante.codigo}`;
-            document.getElementById('userAvatar').textContent = estudiante.iniciales;
+        try {
+          const resp = await fetch(urlEstudiante, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin' // asegura enviar cookies (JSESSIONID) en la misma origin
+          });
+
+          if (resp.status === 401) {
+            // No autenticado -> redirigir al login
+            alert('No autenticado. Redirigiendo al inicio de sesión.');
+            window.location.href = contextPath + '/Inicio_Sesion.html';
+            return;
+          }
+
+          if (!resp.ok) {
+            // Intentamos extraer JSON de error si hay, si no, mostramos mensaje genérico
+            let errBody;
+            try {
+              errBody = await resp.json();
+            } catch (e) {
+              errBody = { error: `HTTP ${resp.status}` };
+            }
+            console.error('Error al obtener estudiante:', errBody);
+            alert('No se pudo cargar la información del estudiante.');
+            return;
+          }
+
+          // Respuesta OK -> parseamos datos del estudiante
+          const estudiante = await resp.json();
+
+          const nombre = estudiante.apellidosNombres || 'Estudiante';
+          const codigo = estudiante.numeroMatricula ? String(estudiante.numeroMatricula) : '---';
+          const iniciales = (function(n) {
+            if (!n) return 'S';
+            return n.split(' ').map(p => p.charAt(0)).slice(0,2).join('').toUpperCase();
+          })(nombre);
+
+          document.getElementById('userName').textContent = nombre;
+          document.getElementById('userCode').textContent = `Código: ${codigo}`;
+          document.getElementById('userAvatar').textContent = iniciales;
+          document.getElementById('welcomeMessage').textContent = `Bienvenido/a ${nombre}`;
+        } catch (err) {
+          console.error('Error fetch estudiante:', err);
+          alert('Error al contactar el servidor');
+        }
+      });
+        // Días en ese orden:
+        const DIAS = ['LUNES','MARTES','MIERCOLES','JUEVES','VIERNES'];
+
+        // Helper: crear elemento curso-block
+        function crearCursoBlock(h) {
+            const div = document.createElement('div');
+            div.className = 'course-block' + (h.tipo_clase && h.tipo_clase.toLowerCase().includes('lab') ? ' lab' : '');
+            const nombre = document.createElement('div');
+            nombre.className = 'course-name';
+            // soportar varias propiedades posibles devueltas desde el backend
+            nombre.textContent = (h.nombre_curso || h.codigo_curso || 'Curso') + (h.letra_grupo ? ' - ' + h.letra_grupo : '');
+            const detalles = document.createElement('div');
+            detalles.className = 'course-details';
+            const salon = h.numero_salon ? h.numero_salon : '-';
+            const prof = h.docente_nombre ? h.docente_nombre : (h.docente || '-');
+            detalles.textContent = `${salon} • ${prof}`;
+            div.appendChild(nombre);
+            div.appendChild(detalles);
+            return div;
+        }
+
+        // Construir la tabla a partir de la lista de horarios (array de objetos)
+        function renderSchedule(horarios) {
+            // 1) construir mapa de franjas horarias únicas ordenadas por hora_inicio
+            const slotsMap = new Map(); // key: slotKey (hora_inicio + ' - ' + hora_fin) -> {horaInicio, horaFin}
+            horarios.forEach(h => {
+                const key = (h.hora_inicio || h.horaInicio || '') + ' - ' + (h.hora_fin || h.horaFin || '');
+                if (!slotsMap.has(key)) {
+                    slotsMap.set(key, {horaInicio: h.hora_inicio || h.horaInicio || '', horaFin: h.hora_fin || h.horaFin || ''});
+                }
+            });
+            // ordenar las keys por horaInicio (asumiendo formato HH:MM[:SS])
+            const slotKeys = Array.from(slotsMap.entries()).sort((a,b) => {
+                const tA = a[1].horaInicio || '';
+                const tB = b[1].horaInicio || '';
+                // convertir a "HH:MM:SS" si falta segundos para comparar lexicográficamente
+                const norm = s => (s||'').length === 5 ? s + ':00' : (s||'00:00:00');
+                return norm(tA).localeCompare(norm(tB));
+            }).map(e => e[0]);
+
+            // 2) Crear un mapa por slot -> dia -> lista de horarios (puede haber varias clases en misma franja/día)
+            const grid = {}; // grid[slotKey][dia] = [horario,...]
+            slotKeys.forEach(k => grid[k] = {});
+            horarios.forEach(h => {
+                const key = (h.hora_inicio || h.horaInicio || '') + ' - ' + (h.hora_fin || h.horaFin || '');
+                const dia = (h.dia_semana || h.diaSemana || '').toUpperCase();
+                if (!grid[key][dia]) grid[key][dia] = [];
+                grid[key][dia].push(h);
+            });
+
+            // 3) Construir <tbody>
+            const tbody = document.createElement('tbody');
+
+            if (slotKeys.length === 0) {
+                // No hay horarios -> fila de mensaje
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 6;
+                td.style.padding = '30px';
+                td.style.textAlign = 'center';
+                td.textContent = 'No hay horarios almacenados en el navegador. Inicia sesión para cargar tus horarios.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            } else {
+                slotKeys.forEach(slotKey => {
+                    const tr = document.createElement('tr');
+                    // Columna hora
+                    const tdHora = document.createElement('td');
+                    tdHora.className = 'time-slot';
+                    tdHora.textContent = slotKey;
+                    tr.appendChild(tdHora);
+
+                    // Para cada día crear celda
+                    DIAS.forEach(dia => {
+                        const td = document.createElement('td');
+                        const items = grid[slotKey][dia] || [];
+                        if (items.length === 0) {
+                            td.className = 'empty-slot';
+                            td.textContent = 'Libre';
+                        } else {
+                            td.className = '';
+                            // si hay varios elementos, apilarlos
+                            items.forEach(h => {
+                                const block = crearCursoBlock(h);
+                                td.appendChild(block);
+                            });
+                        }
+                        tr.appendChild(td);
+                    });
+
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Reemplazar tbody actual
+            const table = document.querySelector('.schedule-table');
+            const oldTbody = table.querySelector('tbody');
+            if (oldTbody && oldTbody.parentNode) {
+                oldTbody.parentNode.replaceChild(tbody, oldTbody);
+            } else {
+                table.appendChild(tbody);
+            }
+        }
+
+        // Leer datos de localStorage y renderizar (sin fetch)
+        function cargarDesdeLocalStorageYRenderizar() {
+            // Intentar varias claves por compatibilidad
+            let horarios = [];
+            try {
+                const raw = localStorage.getItem('horarios');
+                if (raw) horarios = JSON.parse(raw);
+            } catch (e) {
+                console.warn('Error parseando localStorage.horarios', e);
+            }
+
+            // Intentar obtener info de usuario desde distintas claves
+            let usuario = null;
+            try {
+                const cand1 = localStorage.getItem('usuarioDatos'); // recomendado
+                const cand2 = localStorage.getItem('usuario');
+                const cand3 = localStorage.getItem('estudianteActual');
+                const cand4 = localStorage.getItem('email');
+                if (cand1) usuario = JSON.parse(cand1);
+                else if (cand3) usuario = JSON.parse(cand3);
+                else if (cand2) {
+                    try { usuario = JSON.parse(cand2); } catch (er) { usuario = { correo: cand2 }; }
+                } else if (cand4) usuario = { correo: cand4 };
+            } catch (e) {
+                console.warn('Error parseando datos de usuario en localStorage', e);
+            }
+
+            // Mostrar info de usuario en UI
+            if (usuario) {
+                const nombre = usuario.apellidosNombres || usuario.nombre || usuario.apellidos || usuario.fullName || usuario.apellidos_nombres || '';
+                const codigo = usuario.numeroMatricula || usuario.numero_matricula || usuario.codigo || usuario.idUsuario || usuario.id || '---';
+                document.getElementById('userName').textContent = nombre || 'Estudiante';
+                document.getElementById('userCode').textContent = `Código: ${codigo}`;
+                const initials = (nombre || 'E').split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase();
+                document.getElementById('userAvatar').textContent = initials || 'E';
+            } else {
+                // Fallback: no hay usuario en localStorage
+                document.getElementById('userName').textContent = 'Invitado';
+                document.getElementById('userCode').textContent = 'Código: ---';
+                document.getElementById('userAvatar').textContent = 'I';
+            }
+
+            // Renderizar (si horarios no es array, ponemos vacío)
+            renderSchedule(Array.isArray(horarios) ? horarios : []);
+        }
+
+        // Event listener principal: carga TODO desde localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDesdeLocalStorageYRenderizar();
         });
 
-        // Manejar selector de semestre
+        // Manejar selector de semestre (opcional)
         document.querySelectorAll('.semester-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.semester-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                alert(`Horario cargado para el semestre ${this.textContent}`);
+                // Si quieres filtrar por semestre en el futuro, implementa la lógica aquí.
+                const texto = this.textContent.trim();
+                document.getElementById('sectionSemestre').textContent = `Horario Académico - Semestre ${texto}`;
             });
         });
 
-        // Manejar cierre de sesión
-        document.querySelector('.logout-btn').addEventListener('click', function() {
+        // Manejar cierre de sesión: limpiar todas las claves relevantes
+        document.getElementById('logoutBtn').addEventListener('click', function() {
             if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+                // limpiar claves que usamos en este proyecto
                 localStorage.removeItem('estudianteActual');
+                localStorage.removeItem('usuario');
+                localStorage.removeItem('usuarioDatos');
+                localStorage.removeItem('horarios');
+                localStorage.removeItem('rol');
+                localStorage.removeItem('email');
+                // si tu servidor maneja sesión cookie, sería bueno llamar al endpoint /logout; si no, redirigir
+                // ejemplo opcional de llamada logout (comentada):
+                // fetch('/logout', { method: 'POST', credentials: 'same-origin' }).finally(() => window.location.href = 'index.html');
                 window.location.href = 'index.html';
             }
         });
     </script>
+
 </body>
 </html>
