@@ -22,10 +22,24 @@ async function iniciarSesion() {
     // Si el servidor respondió correctamente (2xx)
     if (resp.ok && data && data.success) {
 
-      // 💾 Guardamos toda la información en localStorage
-      localStorage.setItem("usuarioDatos", JSON.stringify(data.usuario || {}));
-      localStorage.setItem("rol", data.rol || "");
-      localStorage.setItem("email", correo);
+            // después de recibir 'data' y comprobar resp.ok y data.success:
+      const usuarioObj = {
+        correo: correo,
+        rol: data.rol || '',
+        apellidosNombres: data.estudiante ? data.estudiante.apellidosNombres : null,
+        numeroMatricula: data.estudiante ? data.estudiante.numeroMatricula : null,
+        idUsuario: data.estudiante ? data.estudiante.idUsuario : null,
+        cui: data.estudiante ? data.estudiante.cui : null
+      };
+      localStorage.setItem('usuarioDatos', JSON.stringify(usuarioObj));
+
+      // Aquí es clave: guardar 'horarios' con EXACTAMENTE esta clave
+      if (Array.isArray(data.horarios)) {
+        localStorage.setItem('horarios', JSON.stringify(data.horarios));
+      } else {
+        localStorage.removeItem('horarios'); // opcional: limpiar si el servidor no envía horarios
+      }
+
 
       // 🚪 Redirigimos según el rol
       const rol = (data.rol || "").toLowerCase();
