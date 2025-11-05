@@ -5,6 +5,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.*;
+import com.google.gson.Gson;
+
 import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +40,21 @@ public class EstudianteDAO {
         public String numero_salon;
         public String docente_nombre;
         public String estado;
+    }
+    
+    public static class NotaDTO {
+        public String tipo;
+        public double valor;
+        public double peso;
+        public String fecha;
+    }
+
+    public static class CursoNotasDTO {
+        public String nombre;
+        public String codigo;
+        public String docente;
+        public double promedio; // si no puedes calcularlo aquí, déjalo 0 y calcula en front o backend
+        public List<NotaDTO> notas = new ArrayList<>();
     }
 
     // Devuelve lista de estudiantes (puedes ampliar para filtrar por curso)
@@ -72,7 +90,8 @@ public class EstudianteDAO {
                 + "INNER JOIN usuarios u ON e.id_usuario = u.id_usuario "
                 + "WHERE u.estado_cuenta = 'ACTIVO' AND u.correo_institucional = ?";
 
-        try (Connection conn = DBUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection(); 
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, correo);
             try (ResultSet rs = ps.executeQuery()) {
@@ -143,6 +162,72 @@ public class EstudianteDAO {
             }
         }
         return lista;
+    }
+    
+    public List<CursoNotasDTO> getNotasPorCUI(String cui, String semestre) throws SQLException {
+        List<CursoNotasDTO> resultado = new ArrayList<>();
+        // Map para agrupar por codigo de curso
+        Map<String, CursoNotasDTO> map = new LinkedHashMap<>();
+
+        String call = "{ CALL notas_estudiante(?) }"; // el proc que pasaste recibe sólo p_cui
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cs = conn.prepareCall(call)) {
+            cs.setString(1, cui);
+            boolean hasRs = cs.execute();
+            if (hasRs) {
+                try (ResultSet rs = cs.getResultSet()) {
+                    while (rs.next()) {
+                        String codigo = rs.getString("codigo_curso");
+                        CursoNotasDTO curso = map.get(codigo);
+                        if (curso == null) {
+                            curso = new CursoNotasDTO();
+                            curso.nombre = rs.getString("nombre_curso");
+                            curso.codigo = codigo;
+                            curso.docente = rs.getString("docente_del_curso"); // concatenado por proc
+                            // promedio no viene del proc; opcional: calcularlo en backend
+                            curso.promedio = 0.0;
+                            map.put(codigo, curso);
+                        }
+
+                        // Para cada fila (cada nota) añadimos a la lista de notas
+                        NotaDTO nota = new NotaDTO();
+                        nota.tipo = rs.getString("tipo_evaluacion");
+                        // campo 'nota' se llama 'nota' o 'calificacion' según tu SELECT; usé 'nota'
+                        double valorNota = rs.getDouble("nota");
+                        if (rs.wasNull()) valorNota = 0.0;
+                        nota.valor = valorNota;
+
+                        // porcentaje -> 'porcentaje' en el SELECT
+                        nota.peso = rs.getDouble("porcentaje");
+                        nota.fecha = rs.getString("fecha_registro"); // formatea si quieres
+                        map.get(codigo).notas.add(nota);
+                    }
+                }
+            }
+        }
+
+        // opcional: calcular promedios por curso (ponderado por peso si lo deseas)
+        for (CursoNotasDTO c : map.values()) {
+            // calcular promedio ponderado si hay pesos (suma peso>0)
+            double sumProd = 0.0, sumPeso = 0.0;
+            for (NotaDTO n : c.notas) {
+                sumProd += n.valor * n.peso;
+                sumPeso += n.peso;
+            }
+            if (sumPeso > 0) {
+                c.promedio = Math.round((sumProd / sumPeso) * 100.0) / 100.0; // 2 decimales
+            } else {
+                // si no hay pesos, promedio simple:
+                if (!c.notas.isEmpty()) {
+                    double s = 0.0;
+                    for (NotaDTO n : c.notas) s += n.valor;
+                    c.promedio = Math.round((s / c.notas.size()) * 100.0) / 100.0;
+                } else c.promedio = 0.0;
+            }
+            resultado.add(c);
+        }
+
+        return resultado;
     }
 
 }

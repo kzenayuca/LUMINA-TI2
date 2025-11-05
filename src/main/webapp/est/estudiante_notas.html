@@ -562,6 +562,10 @@
     </div>
 
     <script>
+        const API_URL = 'http://localhost:3000/api/estudiantes';
+        let notasData = [];
+        let semestreActual = '2023-2';
+        
         document.addEventListener('DOMContentLoaded', async function() {
           // Detectar contextPath de forma dinámica: toma el primer segmento "no vacío" de la ruta.
           const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -608,29 +612,84 @@
             document.getElementById('userName').textContent = nombre;
             document.getElementById('userCode').textContent = `Código: ${codigo}`;
             document.getElementById('userAvatar').textContent = iniciales;
-            document.getElementById('welcomeMessage').textContent = `Bienvenido/a ${nombre}`;
+            cargarNotasEstudiante();
           } catch (err) {
             console.error('Error fetch estudiante:', err);
             alert('Error al contactar el servidor');
           }
         });
 
-        // Función para cargar notas del estudiante desde la API
-        async function cargarNotasEstudiante() {
+// --------------------- Reemplazar esta función ---------------------
+async function cargarNotasEstudiante() {
+    try {
+                // Intentamos obtener los datos del usuario desde localStorage
+        let usuarioDatos = JSON.parse(localStorage.getItem('usuarioDatos'));
+        let cui = null;
+
+        if (usuarioDatos && usuarioDatos.cui) {
+            cui = usuarioDatos.cui;
+        } else {
+            console.warn('No se encontró el CUI en localStorage, intentando desde /api/estudiantes/me...');
             try {
-                const estudiante = JSON.parse(localStorage.getItem('estudianteActual'));
-                const response = await fetch(`${API_URL}/notas/${estudiante.id}?semestre=${semestreActual}`);
-                
-                if (!response.ok) throw new Error('Error al cargar notas');
-                
-                notasData = await response.json();
-                mostrarEstadisticasGenerales();
-                mostrarCursosYNotas();
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarDatosEjemplo(); // Datos de ejemplo si falla la API
+                const pathParts = window.location.pathname.split('/').filter(Boolean);
+                const contextPath = pathParts.length > 0 ? '/' + pathParts[0] : '';
+                const resp = await fetch(`${contextPath}/api/estudiantes/me`, { credentials: 'same-origin' });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    cui = data.cui || data.numeroMatricula || null;
+                    localStorage.setItem('usuarioDatos', JSON.stringify(data)); // lo guardamos para la próxima
+                }
+            } catch (err) {
+                console.error('Error obteniendo CUI desde el servidor:', err);
             }
         }
+
+        if (!cui) {
+            console.warn('No se encontró CUI del estudiante en localStorage. Intentando /api/estudiantes/me...');
+            // Intento adicional: llamar a /api/estudiantes/me (misma lógica ya usada en DOMContentLoaded)
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const contextPath = pathParts.length > 0 ? '/' + pathParts[0] : '';
+            const resp = await fetch(`${contextPath}/api/estudiantes/me`, { credentials: 'same-origin' });
+            if (!resp.ok) { mostrarDatosEjemplo(); return; }
+            const est = await resp.json();
+            // Ajusta si tu campo se llama diferente
+            const realCui = est.cui || est.p_cui || est.cui_estudiante || est.numeroDocumento;
+            if (!realCui) { mostrarDatosEjemplo(); return; }
+            estudiante = est;
+            cui = realCui;
+            localStorage.setItem('estudianteActual', JSON.stringify(est));
+        }
+
+        // Llamamos al endpoint que ejecuta el procedimiento. 
+        // Ajusta el path si prefieres otro, p.ej. /api/estudiantes/notas
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const contextPath = pathParts.length > 0 ? '/' + pathParts[0] : '';
+        const url = `${contextPath}/api/estudiantes/notas?cui=${encodeURIComponent(cui)}&semestre=${encodeURIComponent(semestreActual)}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin' // envía cookies de sesión JSESSIONID si aplica
+        });
+
+        if (!response.ok) {
+            console.error('Error al cargar notas del backend:', response.status, await response.text());
+            mostrarDatosEjemplo();
+            return;
+        }
+
+        // El backend debe devolver un JSON con la forma que el front espera:
+        // [ { nombre, codigo, docente, promedio, notas: [{ tipo, valor, peso, fecha }, ...] }, ... ]
+        notasData = await response.json();
+        mostrarEstadisticasGenerales();
+        mostrarCursosYNotas();
+    } catch (error) {
+        console.error('Error cargando notas:', error);
+        mostrarDatosEjemplo();
+    }
+}
+// --------------------- Fin reemplazo ---------------------
+
 
         // Función para mostrar estadísticas generales
         function mostrarEstadisticasGenerales() {
@@ -690,7 +749,7 @@
                 <div class="course-card">
                     <div class="course-header">
                         <div class="course-name">${curso.nombre}</div>
-                        <div class="course-average ${curso.promedio >= 13 ? 'average-approved' : 'average-disapproved'}">
+                        <div class="course-average ${curso.promedio >= 10.5 ? 'average-approved' : 'average-disapproved'}">
                             ${curso.promedio}
                         </div>
                     </div>
@@ -747,8 +806,8 @@
                 const sumaPromedios = notasData.reduce((sum, curso) => sum + parseFloat(curso.promedio), 0);
                 promedioGeneral = (sumaPromedios / notasData.length).toFixed(2);
                 
-                cursosAprobados = notasData.filter(curso => curso.promedio >= 13).length;
-                cursosDesaprobados = notasData.filter(curso => curso.promedio < 13 && curso.promedio > 0).length;
+                cursosAprobados = notasData.filter(curso => curso.promedio >= 10.5).length;
+                cursosDesaprobados = notasData.filter(curso => curso.promedio < 10.5 && curso.promedio > 0).length;
                 cursosPendientes = notasData.filter(curso => curso.promedio === 0).length;
             }
 
@@ -763,12 +822,12 @@
         // Funciones auxiliares
         function obtenerClaseEstado(promedio) {
             if (promedio === 0) return 'status-pending';
-            return promedio >= 13 ? 'status-approved' : 'status-disapproved';
+            return promedio >= 10.5 ? 'status-approved' : 'status-disapproved';
         }
 
         function obtenerTextoEstado(promedio) {
             if (promedio === 0) return 'En Progreso';
-            return promedio >= 13 ? 'Aprobado' : 'Desaprobado';
+            return promedio >= 10.5 ? 'Aprobado' : 'Desaprobado';
         }
 
         // Función para cambiar semestre
