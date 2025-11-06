@@ -21,7 +21,7 @@ Este módulo implementa el sistema de **inicio de sesión y autenticación de us
 |--------|-----------|-----|
 | 202501005@instituto.edu.pe | 1234 | ESTUDIANTE |
 | juan.perez@instituto.edu.pe | 1234 | DOCENTE |
-|secretaria.rosales@lumina.edu.pe|$2y$10$secretaria001hash| SECRETARIA|
+|secretaria.rosales@lumina.edu.pe|1234| SECRETARIA|
 
 ---
 
