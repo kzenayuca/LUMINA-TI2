@@ -12,18 +12,6 @@ Este módulo implementa el sistema de **inicio de sesión y autenticación de us
 ✅ Validación de credenciales  
 ✅ Mensajes de error personalizados  
 ✅ Sistema de roles (Estudiante, Docente, Administración, Secretaría)  
-✅ Simulación de base de datos para pruebas  
-✅ Estructura lista para integrar con **Java + MySQL**
-
----
-
-## 🛠️ Instalación
-
-1. Descargar el proyecto
-2. Guardarlo en tu servidor local (**XAMPP**, **WAMP**, **Tomcat**, etc.)
-3. Abrir `index.html` en el navegador
-
-> *Próxima versión:* conexión directa al backend Java + MySQL
 
 ---
 
@@ -31,8 +19,9 @@ Este módulo implementa el sistema de **inicio de sesión y autenticación de us
 
 | Usuario | Contraseña | Rol |
 |--------|-----------|-----|
-| asotohu@unsa.edu.pe | password123 | Profesor |
-| dabensur@unsa.edu.pe | password123 | Administración |
+| 202501005@instituto.edu.pe | 1234 | ESTUDIANTE |
+| juan.perez@instituto.edu.pe | 1234 | DOCENTE |
+|secretaria.rosales@lumina.edu.pe|$2y$10$secretaria001hash| SECRETARIA|
 
 ---
 
@@ -41,8 +30,6 @@ Este módulo implementa el sistema de **inicio de sesión y autenticación de us
 - **Frontend:** HTML, CSS, JavaScript  
 - **Backend:** Java (Servlets / JDBC)  
 - **Base de Datos:** MySQL  
-- **Modelo:** MVC + Stored Procedures + Vistas
-
 ---
 
 ## 📁 Estructura y Responsabilidades del Equipo  
@@ -91,7 +78,6 @@ con buenas prácticas y arquitectura escalable.
 - Integración completa con **Java + MySQL**
 - Panel de control por rol
 - Historial académico en tiempo real
-- Notificaciones internas
 - Exportación a PDF
 
 ---
