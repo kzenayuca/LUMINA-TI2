@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Mi Horario - LUMINA STUDENT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -32,7 +32,7 @@
             color: #333;
         }
 
-        /* Sidebar - Mismo estilo que el dashboard */
+        /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
             background: linear-gradient(180deg, var(--primary) 0%, #1a2530 100%);
@@ -99,8 +99,9 @@
             border: none;
             color: white;
             cursor: pointer;
-            opacity: 0.7;
+            opacity: 0.85;
             transition: opacity 0.3s;
+            font-size: 1rem;
         }
 
         .logout-btn:hover {
@@ -294,23 +295,23 @@
                 width: 70px;
                 overflow: visible;
             }
-            
+
             .logo h1, .user-details, .menu-title, .menu-item span {
                 display: none;
             }
-            
+
             .main-content {
                 margin-left: 70px;
             }
-            
+
             .logo {
                 justify-content: center;
             }
-            
+
             .user-info {
                 justify-content: center;
             }
-            
+
             .menu-item {
                 justify-content: center;
                 padding: 15px 0;
@@ -326,130 +327,135 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
+    <aside class="sidebar" aria-label="Barra lateral principal">
         <div class="logo">
-            <i class="fas fa-university"></i>
+            <i class="fas fa-university" aria-hidden="true"></i>
             <h1>LUMINA PROFESOR</h1>
         </div>
-        
+
         <div class="user-info">
-            <div class="user-avatar">
+            <div class="user-avatar" aria-hidden="true">
                 <i class="fas fa-user-tie"></i>
             </div>
             <div class="user-details">
                 <h3 id="profesor-name">Profesor</h3>
                 <p>IP: 192.168.1.45 (Presencial)</p>
             </div>
+            <!-- Botón de cerrar sesión añadido -->
+            <button class="logout-btn" id="logoutBtn" title="Cerrar sesión" aria-label="Cerrar sesión">
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+            </button>
         </div>
-        
-        <div class="menu">
+
+        <nav class="menu" aria-label="Menú principal">
             <div class="menu-section">
-                <div class="menu-item active" onclick="window.location.href='nuevo_profesor.html'">
+                <a href="nuevo_profesor.html" class="menu-item active" aria-current="page">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>DASHBOARD</span>
-                </div>
+                </a>
                 <div class="menu-title">Panel Principal</div>
             </div>
-            
+
             <div class="menu-section">
-                <div class="menu-item" onclick="window.location.href='nuevo_profesor_asistenciabloqueada.html'">
+                <!-- Corregida la etiqueta: ahora es un <a> en vez de un div mal cerrado -->
+                <a href="nuevo_profesor_asistenciabloqueada.html" class="menu-item">
                     <i class="fas fa-clipboard-check"></i>
                     <span>REGISTRAR ASISTENCIA</span>
                 </a>
             </div>
-            
+
             <div class="menu-section">
-                <a href="profesor_notas.html" class="menu-item" >
+                <a href="profesor_notas.html" class="menu-item">
                     <i class="fas fa-edit"></i>
                     <span>INGRESAR NOTAS</span>
                 </a>
             </div>
-            
+
             <div class="menu-section">
                 <a href="nuevo_profesor_horario.html" class="menu-item">
                     <i class="fas fa-calendar-alt"></i>
                     <span>VER HORARIO</span>
                 </a>
             </div>
-            
+
             <div class="menu-section">
                 <a href="nuevo_profesor_contenido.html" class="menu-item">
                     <i class="fas fa-door-open"></i>
                     <span>DISPONIBILIDAD DE AULAS</span>
                 </a>
             </div>
-            
+
             <div class="menu-section">
                 <a href="nuevo_profesor_contenido.html" class="menu-item">
                     <i class="fas fa-upload"></i>
                     <span>SUBIR SÍLABOS / CONTENIDO</span>
                 </a>
             </div>
-            
+
             <div class="menu-section">
                 <a href="profesor_reportes.html" class="menu-item">
                     <i class="fas fa-file-pdf"></i>
                     <span>REPORTES PDF</span>
                 </a>
             </div>
-        </div>
-    </div>
-    
+        </nav>
+    </aside>
+
     <!-- Main Content -->
-    <div class="main-content">
+    <main class="main-content">
         <div class="header">
             <h1>Mi Horario Semanal</h1>
-            <div class="breadcrumb">
+            <div class="breadcrumb" aria-label="Ruta de navegación">
                 <span>Inicio</span>
                 <i class="fas fa-chevron-right"></i>
                 <span>Mi Horario</span>
             </div>
         </div>
-        
-        <div class="page-content">
-            <div class="section-title">
+
+        <section class="page-content" aria-labelledby="titulo-horario">
+            <div class="section-title" id="titulo-horario">
                 <span>Horario Académico - Semestre 2023-2</span>
             </div>
-            
-            <div class="semester-selector">
-                <button class="semester-btn active">2023-2</button>
-                <button class="semester-btn">2024-1</button>
-                <button class="semester-btn">2024-2</button>
+
+            <div class="semester-selector" role="tablist" aria-label="Selector de semestre">
+                <button class="semester-btn active" role="tab">2023-2</button>
+                <button class="semester-btn" role="tab">2024-1</button>
+                <button class="semester-btn" role="tab">2024-2</button>
             </div>
-            
+
             <div class="schedule-container">
-                <table class="schedule-table">
+                <table class="schedule-table" role="table" aria-label="Horario semanal">
                     <thead>
-                        <tr>
-                            <th>Hora</th>
-                            <th>Lunes</th>
-                            <th>Martes</th>
-                            <th>Miércoles</th>
-                            <th>Jueves</th>
-                            <th>Viernes</th>
+                        <tr role="row">
+                            <th role="columnheader">Hora</th>
+                            <th role="columnheader">Lunes</th>
+                            <th role="columnheader">Martes</th>
+                            <th role="columnheader">Miércoles</th>
+                            <th role="columnheader">Jueves</th>
+                            <th role="columnheader">Viernes</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="time-slot">07:00 - 08:30</td>
                             <td>
-                                <div class="course-block">
+                                <div class="course-block" tabindex="0">
                                     <div class="course-name">Programación I</div>
-                                    <div class="course-details">A-101 • Dr. Rodríguez</div>
+                                    <div class="course-details">A-101 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                             <td class="empty-slot">Libre</td>
                             <td>
-                                <div class="course-block lab">
+                                <div class="course-block lab" tabindex="0">
                                     <div class="course-name">Laboratorio Programación</div>
-                                    <div class="course-details">Lab-201 • Ing. Martínez</div>
+                                    <div class="course-details">Lab-201 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                             <td class="empty-slot">Libre</td>
                             <td>
-                                <div class="course-block">
+                                <div class="course-block" tabindex="0">
                                     <div class="course-name">Matemáticas</div>
-                                    <div class="course-details">A-102 • Dr. Torres</div>
+                                    <div class="course-details">A-102 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                         </tr>
@@ -457,16 +463,16 @@
                             <td class="time-slot">08:30 - 10:00</td>
                             <td class="empty-slot">Libre</td>
                             <td>
-                                <div class="course-block">
+                                <div class="course-block" tabindex="0">
                                     <div class="course-name">Física General</div>
-                                    <div class="course-details">A-103 • Dra. López</div>
+                                    <div class="course-details">A-103 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                             <td class="empty-slot">Libre</td>
                             <td>
-                                <div class="course-block">
+                                <div class="course-block" tabindex="0">
                                     <div class="course-name">Inglés Técnico</div>
-                                    <div class="course-details">A-104 • Prof. Johnson</div>
+                                    <div class="course-details">A-104 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                             <td class="empty-slot">Libre</td>
@@ -474,17 +480,17 @@
                         <tr>
                             <td class="time-slot">10:00 - 11:30</td>
                             <td>
-                                <div class="course-block lab">
+                                <div class="course-block lab" tabindex="0">
                                     <div class="course-name">Laboratorio Física</div>
-                                    <div class="course-details">Lab-301 • Dr. Torres</div>
+                                    <div class="course-details">Lab-301 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                             <td class="empty-slot">Libre</td>
                             <td class="empty-slot">Libre</td>
                             <td>
-                                <div class="course-block">
+                                <div class="course-block" tabindex="0">
                                     <div class="course-name">Programación I</div>
-                                    <div class="course-details">A-101 • Dr. Rodríguez</div>
+                                    <div class="course-details">A-101 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                             <td class="empty-slot">Libre</td>
@@ -493,56 +499,52 @@
                             <td class="time-slot">11:30 - 13:00</td>
                             <td class="empty-slot">Libre</td>
                             <td>
-                                <div class="course-block">
+                                <div class="course-block" tabindex="0">
                                     <div class="course-name">Física General</div>
-                                    <div class="course-details">A-103 • Dra. López</div>
+                                    <div class="course-details">A-103 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                             <td class="empty-slot">Libre</td>
                             <td class="empty-slot">Libre</td>
                             <td>
-                                <div class="course-block lab">
+                                <div class="course-block lab" tabindex="0">
                                     <div class="course-name">Laboratorio Química</div>
-                                    <div class="course-details">Lab-401 • Dra. Patricia</div>
+                                    <div class="course-details">Lab-401 • Dr. Juan Perez</div>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <script>
-        // Cargar información del estudiante
-        document.addEventListener('DOMContentLoaded', function() {
-            const estudiante = JSON.parse(localStorage.getItem('estudianteActual')) || {
-                nombre: 'Ángela Soto Huerta',
-                codigo: '20212163',
-                iniciales: 'AS'
-            };
-
-            document.getElementById('userName').textContent = estudiante.nombre;
-            document.getElementById('userCode').textContent = `Código: ${estudiante.codigo}`;
-            document.getElementById('userAvatar').textContent = estudiante.iniciales;
-        });
-
         // Manejar selector de semestre
         document.querySelectorAll('.semester-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.semester-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                alert(`Horario cargado para el semestre ${this.textContent}`);
+                // Puedes cambiar alert por una notificación menos intrusiva si prefieres
+                alert(`Horario cargado para el semestre ${this.textContent.trim()}`);
             });
         });
 
-        // Manejar cierre de sesión
-        document.querySelector('.logout-btn').addEventListener('click', function() {
-            if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-                localStorage.removeItem('estudianteActual');
-                window.location.href = 'index.html';
-            }
-        });
+        // Manejar cierre de sesión (comprobaciones defensivas)
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+                    // Ajusta la clave del localStorage si usas otra
+                    try {
+                        localStorage.removeItem('estudianteActual');
+                    } catch (e) {
+                        console.warn('No se pudo acceder a localStorage:', e);
+                    }
+                    window.location.href = 'Inicio_Sesion.html';
+                }
+            });
+        }
     </script>
 </body>
 </html>
