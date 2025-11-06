@@ -327,80 +327,83 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <aside class="sidebar" aria-label="Barra lateral principal">
+    <div class="sidebar">
         <div class="logo">
-            <i class="fas fa-university" aria-hidden="true"></i>
+            <i class="fas fa-university"></i>
             <h1>LUMINA PROFESOR</h1>
         </div>
-
+        
         <div class="user-info">
-            <div class="user-avatar" aria-hidden="true">
+            <div class="user-avatar">
                 <i class="fas fa-user-tie"></i>
             </div>
             <div class="user-details">
                 <h3 id="profesor-name">Profesor</h3>
                 <p>IP: 192.168.1.45 (Presencial)</p>
             </div>
-            <!-- Botón de cerrar sesión añadido -->
-            <button class="logout-btn" id="logoutBtn" title="Cerrar sesión" aria-label="Cerrar sesión">
-                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-            </button>
         </div>
-
-        <nav class="menu" aria-label="Menú principal">
+        
+        <div class="menu">
             <div class="menu-section">
-                <a href="nuevo_profesor.html" class="menu-item active" aria-current="page">
+                <a href="nuevo_profesor.html"  class="menu-item">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>DASHBOARD</span>
                 </a>
                 <div class="menu-title">Panel Principal</div>
             </div>
-
+            
             <div class="menu-section">
-                <!-- Corregida la etiqueta: ahora es un <a> en vez de un div mal cerrado -->
                 <a href="nuevo_profesor_asistenciabloqueada.html" class="menu-item">
                     <i class="fas fa-clipboard-check"></i>
                     <span>REGISTRAR ASISTENCIA</span>
                 </a>
             </div>
-
+            
             <div class="menu-section">
                 <a href="profesor_notas.html" class="menu-item">
                     <i class="fas fa-edit"></i>
                     <span>INGRESAR NOTAS</span>
                 </a>
             </div>
-
+            
             <div class="menu-section">
-                <a href="nuevo_profesor_horario.html" class="menu-item">
+                <a href="profesor_estadisticas.html" class="menu-item">
+                    <i class="fas fa-edit"></i>
+                    <span>ESTADISTICAS</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <a href="profesor_horario.html" class="menu-item">
                     <i class="fas fa-calendar-alt"></i>
                     <span>VER HORARIO</span>
                 </a>
             </div>
-
+            
             <div class="menu-section">
-                <a href="nuevo_profesor_contenido.html" class="menu-item">
+                <a href="profesor_reservaaulalab.html" class="menu-item">
                     <i class="fas fa-door-open"></i>
                     <span>DISPONIBILIDAD DE AULAS</span>
                 </a>
             </div>
-
+            
             <div class="menu-section">
                 <a href="nuevo_profesor_contenido.html" class="menu-item">
                     <i class="fas fa-upload"></i>
                     <span>SUBIR SÍLABOS / CONTENIDO</span>
                 </a>
             </div>
-
+            
             <div class="menu-section">
                 <a href="profesor_reportes.html" class="menu-item">
                     <i class="fas fa-file-pdf"></i>
                     <span>REPORTES PDF</span>
                 </a>
             </div>
-        </nav>
-    </aside>
-
+        </div>
+    </div>
+    
+    
     <!-- Main Content -->
     <main class="main-content">
         <div class="header">

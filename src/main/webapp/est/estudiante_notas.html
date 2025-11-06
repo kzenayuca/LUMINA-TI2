@@ -576,7 +576,8 @@
             const resp = await fetch(urlEstudiante, {
               method: 'GET',
               headers: { 'Accept': 'application/json' },
-              credentials: 'same-origin' // asegura enviar cookies (JSESSIONID) en la misma origin
+              cache: 'no-store'
+              //credentials: 'same-origin' // asegura enviar cookies (JSESSIONID) en la misma origin
             });
 
             if (resp.status === 401) {

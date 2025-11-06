@@ -554,24 +554,23 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo">
-            <i class="fas fa-graduation-cap"></i>
-            <h1>LUMINA ADMIN</h1>
+            <i class="fas fa-university"></i>
+            <h1>LUMINA PROFESOR</h1>
         </div>
         
         <div class="user-info">
-            <div class="user-avatar">A</div>
-            <div class="user-details">
-                <h3>Administrador</h3>
-                <p>Sistema Universitario</p>
+            <div class="user-avatar">
+                <i class="fas fa-user-tie"></i>
             </div>
-            <button class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+            <div class="user-details">
+                <h3 id="profesor-name">Profesor</h3>
+                <p>IP: 192.168.1.45 (Presencial)</p>
+            </div>
         </div>
         
         <div class="menu">
             <div class="menu-section">
-                <a href="admin.html" class="menu-item">
+                <a href="nuevo_profesor.html"  class="menu-item">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>DASHBOARD</span>
                 </a>
@@ -579,66 +578,55 @@
             </div>
             
             <div class="menu-section">
-                <div class="menu-item" id="users-menu">
-                    <i class="fas fa-users"></i>
-                    <span>GESTIÓN DE USUARIOS</span>
-                </div>
-                <div class="submenu" id="users-submenu">
-                    <a href="adgestio.usuarios.html" class="submenu-item">
-                        <i class="fas fa-circle"></i>
-                        <span>Gestión de Usuarios</span>
-                    </a>
-                    <a href="adbloguear_cuentas.html" class="submenu-item">
-                        <i class="fas fa-circle"></i>
-                        <span>Bloquear/Desbloquear</span>
-                    </a>
-                </div>
+                <a href="nuevo_profesor_asistenciabloqueada.html" class="menu-item">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>REGISTRAR ASISTENCIA</span>
+                </a>
             </div>
             
             <div class="menu-section">
-                <div class="menu-item" id="academic-menu">
-                    <i class="fas fa-book-open"></i>
-                    <span>GESTIÓN ACADÉMICA</span>
-                </div>
-                <div class="submenu" id="academic-submenu">
-                    <a href="adasignar_horarios.html" class="submenu-item">
-                        <i class="fas fa-chevron-right"></i>
-                        <span>Asignar Horarios</span>
-                    </a>
-                    <a href="addocentes_laboratorio.html" class="submenu-item">
-                        <i class="fas fa-chevron-right"></i>
-                        <span>Docentes Laboratorio</span>
-                    </a>
-                    <a href="adgestion_cupos.html" class="submenu-item">
-                        <i class="fas fa-caret-right"></i>
-                        <span>Gestión de Cupos</span>
-                    </a>
-                    <a href="adedita_estudiantes.html" class="submenu-item">
-                        <i class="fas fa-circle"></i>
-                        <span>Editar Estudiantes</span>
-                    </a>
-                </div>
+                <a href="profesor_notas.html" class="menu-item">
+                    <i class="fas fa-edit"></i>
+                    <span>INGRESAR NOTAS</span>
+                </a>
             </div>
             
             <div class="menu-section">
-                <div class="menu-item active" id="reports-menu">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>REPORTES</span>
-                </div>
-                <div class="submenu active" id="reports-submenu">
-                    <a href="reportes_academicos.html" class="submenu-item active">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Reportes Académicos</span>
-                    </a>
-                    <a href="supervision_rendimiento.html" class="submenu-item">
-                        <i class="fas fa-chevron-down"></i>
-                        <span>Supervisión Rendimiento</span>
-                    </a>
-                </div>
+                <a href="profesor_estadisticas.html" class="menu-item">
+                    <i class="fas fa-edit"></i>
+                    <span>ESTADISTICAS</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <a href="profesor_horario.html" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>VER HORARIO</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <a href="profesor_reservaaulalab.html" class="menu-item">
+                    <i class="fas fa-door-open"></i>
+                    <span>DISPONIBILIDAD DE AULAS</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <a href="nuevo_profesor_contenido.html" class="menu-item">
+                    <i class="fas fa-upload"></i>
+                    <span>SUBIR SÍLABOS / CONTENIDO</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <a href="profesor_reportes.html" class="menu-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>REPORTES PDF</span>
+                </a>
             </div>
         </div>
     </div>
-    
     <!-- Main Content -->
     <div class="main-content">
         <div class="header">
