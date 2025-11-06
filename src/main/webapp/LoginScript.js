@@ -46,11 +46,11 @@ async function iniciarSesion() {
       let destino = "frontend/estudiante.html"; // página por defecto
 
       if (rol.includes("docente") || rol === "docente")
-        destino = "doc/profesor.html";
+        destino = "doc/nuevo_profesor.html";
       else if (rol.includes("admin") || rol === "administrador")
         destino = "admin/admin.html";
       else if (rol.includes("secretaria"))
-        destino = "admin/admin.html";
+        destino = "secr/secretaria.html";
       else if (rol.includes("estudiante"))
         destino = "est/estudiante_dashboard.html";
 
